@@ -1,19 +1,51 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import { Users, Wifi, Activity, CreditCard } from 'lucide-react';
 import Sidebar from './components/Sidebar';
 import StatCard from './components/StatCard';
 import NetworkStatus from './components/NetworkStatus';
 import ActiveCustomers from './components/ActiveCustomers';
-import PPPoE from './pages/PPPoE';
+
+// Lazy load pages
+const PPPoE = lazy(() => import('./pages/PPPoE'));
+const Hotspots = lazy(() => import('./pages/Hotspots'));
+const Network = lazy(() => import('./pages/Network'));
+const Billing = lazy(() => import('./pages/Billing'));
 
 function App() {
-  // For demo purposes, showing PPPoE page
-  const currentPage = 'pppoe';
+  const [currentPage, setCurrentPage] = React.useState('dashboard');
 
   const renderPage = () => {
+    const loadingFallback = (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+      </div>
+    );
+
     switch (currentPage) {
       case 'pppoe':
-        return <PPPoE />;
+        return (
+          <Suspense fallback={loadingFallback}>
+            <PPPoE />
+          </Suspense>
+        );
+      case 'hotspots':
+        return (
+          <Suspense fallback={loadingFallback}>
+            <Hotspots />
+          </Suspense>
+        );
+      case 'network':
+        return (
+          <Suspense fallback={loadingFallback}>
+            <Network />
+          </Suspense>
+        );
+      case 'billing':
+        return (
+          <Suspense fallback={loadingFallback}>
+            <Billing />
+          </Suspense>
+        );
       default:
         return (
           <div className="max-w-7xl mx-auto">
@@ -63,7 +95,7 @@ function App() {
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      <Sidebar />
+      <Sidebar onNavigate={setCurrentPage} currentPage={currentPage} />
       <main className="flex-1 p-8">
         {renderPage()}
       </main>
